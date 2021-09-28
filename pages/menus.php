@@ -37,6 +37,61 @@ if ($func === "delete") {
 
     echo rex_view::success('Navigation "' . $nav['name'] . '" wurde gelöscht');
 }
+if ($func === "copy") {
+    $menu         = rex_navbuilder_navigation::query()->select('structure')->where('id', $id)->orderBy('id')->findOne();
+    $structure    = $menu->structure;
+    $originalName = $menu->name;
+    $newName      = $originalName . '_copy';
+
+    $sql = rex_sql::factory();
+    $sql->setTable(rex::getTable("navbuilder_navigation"));
+    $sql->setValue('name', $newName);
+    $sql->setValue('structure', $structure);
+    $sql->insert();
+    $id = (int) $sql->getLastId();
+    echo rex_view::success('Navigation "' . $originalName . '" wurde kopiert und als neues Menü "' . $newName . '" angelegt');
+}
+if ($func === "createfromstructure") {
+    $structure      = [];
+    $rootCategories = rex_category::getRootCategories(false);
+
+    // todo: check if has redirect
+    foreach ($rootCategories as $idx => $rootCategory) {
+        $childCategories = $rootCategory->getChildren(false);
+        $childArticles   = $rootCategory->getArticles(false);
+        $childItems      = array_merge($childCategories, $childArticles);
+
+        $id   = $rootCategory->getId();
+        $name = $rootCategory->getName();
+        $type = count($childCategories) || count($childArticles) > 1 ? 'group' : 'intern';
+
+        $structure[$idx] = [
+            'text' => $name,
+            'href' => $id,
+            'type' => $type,
+        ];
+
+        if ($type === 'group') {
+            $structure[$idx]['children'] = [];
+            foreach ($childItems as $childIndex => $childItem) {
+                $structure[$idx]['children'][$childIndex] = [
+                    'text' => $childItem->getName(),
+                    'href' => $childItem->getId(),
+                    'type' => 'intern',
+                ];
+            }
+        }
+    }
+
+    $navName = 'main_navigation';
+    $sql     = rex_sql::factory();
+    $sql->setTable(rex::getTable("navbuilder_navigation"));
+    $sql->setValue('name', $navName);
+    $sql->setValue('structure', json_encode($structure));
+    $sql->insert();
+    $id = (int) $sql->getLastId();
+    echo rex_view::success('Navigation "' . $navName . '" wurde angelegt');
+}
 
 if ($func == '' || $func == 'delete') {
     $list = rex_list::factory("SELECT `id`, `name`, CONCAT('REX_NAVBUILDER[name=',`name`,']') as `snippet` FROM `" . rex::getTablePrefix() . "navbuilder_navigation` ORDER BY `name` ASC");
@@ -74,6 +129,20 @@ if ($func == '' || $func == 'delete') {
         $nav = rex_navbuilder_navigation::get($id);
     }
 
+    $buttonProperties = [
+        'label' => 'Navigation kopieren',
+        'value' => 'copy',
+        'icon'  => 'glyphicon glyphicon-copy',
+    ];
+
+    if (!$nav->structure && count(rex_category::getRootCategories(false))) {
+        $buttonProperties = [
+            'label' => 'Navigation aus Kategoriestruktur erstellen',
+            'value' => 'createfromstructure',
+            'icon'  => 'rex-icon fa-bars',
+        ];
+    }
+
     $content .= '
         <script>
 			var navbuilderJson = ' . ($nav->structure != '' ? $nav->structure : '{}') . ';
@@ -105,7 +174,8 @@ if ($func == '' || $func == 'delete') {
 						<div class="form-group">
 							<button type="submit" name="func" value="save" class="btn btn-success" id="btnOut"><i class="glyphicon glyphicon-ok"></i> Speichern</button>
 							<button type="submit" name="func" value="delete" class="btn btn-delete"><i class="glyphicon glyphicon-delete"></i> Löschen</button>
-						</div>
+							<button type="submit" name="func" value="' . $buttonProperties['value'] . '" class="btn btn-primary" ><i class="' . $buttonProperties['icon'] . '"></i> ' . $buttonProperties['label'] . '</button>
+                        </div>
 						<div class="form-group">
 							<textarea class="hidden" id="structure" name="config[structure]" class="form-control" cols="50" rows="10"></textarea>
 						</div>
