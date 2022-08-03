@@ -103,21 +103,15 @@ class rex_navbuilder
                 $data["children"] = self::buildStructure($item['children']);
             }
 
-            if ($item['type'] === 'intern' && rex_article::get($item["href"]) ){
-                
-                $data["id"] = $item["href"];
+            if ($item['type'] === 'intern' && rex_article::get($item["href"])) {
+                $data["id"]     = $item["href"];
                 $data["active"] = $item["href"] == rex_article::getCurrentId();
-                $data["name"] = rex_article::get($item["href"])->getName();
-
-            } else if ($item['type'] === 'extern') {
-
+                $data["name"]   = $item["label"] ? Wildcard::get($item["label"]) : rex_article::get($item["href"])->getName();
+            } elseif ($item['type'] === 'extern') {
                 $data["name"] = $item["text"];
                 $data["href"] = $item["href"];
-
-            } else if ($item['type'] === 'group') {
-
+            } elseif ($item['type'] === 'group') {
                 $data["name"] = $item["text"];
-
             }
 
             $list[] = $data;

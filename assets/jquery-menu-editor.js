@@ -889,6 +889,7 @@ function MenuEditor(idSelector, options) {
         var data = $item.data();
 
         if (data.type === 'intern') {
+            $form.find('input#internLabel').val(data.label);
             $form.find('input#REX_LINK_href_NAME').val(data.text);
             $form.find('input#REX_LINK_href').val(data.href);
         }
@@ -983,12 +984,11 @@ function MenuEditor(idSelector, options) {
 
             var $span = '';
             if (typeof (v.type) !== 'undefined' && v.type === 'intern') {
-                $span = $('<span class="txt">' + v.text + '</span>');
-            }
-            else if (typeof (v.type) !== 'undefined' && v.type === 'extern') {
+                const label = (typeof (v.label) !== 'undefined') ? getLabelString(v.label) : '';
+                $span = $('<span class="txt">' + v.text + label + '</span>');
+            } else if (typeof (v.type) !== 'undefined' && v.type === 'extern') {
                 $span = $(' <span class="txt">' + v.text + '</span>');
-            }
-            else if (typeof (v.type) !== 'undefined' && v.type === 'group') {
+            } else if (typeof (v.type) !== 'undefined' && v.type === 'group') {
                 $span = $('<strong>Gruppe:</strong> <span class="txt">' + v.text + '</span>');
             }
 
@@ -1031,6 +1031,10 @@ function MenuEditor(idSelector, options) {
         });
     }
 
+    function getLabelString(name) {
+        return ' - <span style="font-weight: bold">&nbsp;' + name + '</span>';
+    }
+
     /*PUBLIC METHODS*/
     this.setForm = function (form) {
         $form = form;
@@ -1059,10 +1063,14 @@ function MenuEditor(idSelector, options) {
         if ($cEl === null) {
             return;
         }
+        const labelText = $form.find('input#internLabel').val();
+        const label = labelText ? getLabelString(labelText) : '';
+
         $cEl.data('text', $form.find('input#REX_LINK_href_NAME').val());
         $cEl.data('href', $form.find('input#REX_LINK_href').val());
+        $cEl.data('label', labelText);
 
-        $cEl.find('span.txt').first().text($cEl.data('text'));
+        $cEl.find('span.txt').first().html($cEl.data('text') + label);
         resetForm();
     };
 
@@ -1097,12 +1105,17 @@ function MenuEditor(idSelector, options) {
         //     data[$(this).attr('name')] = $(this).val();
         // });
 
+        const label = $form.find('input#internLabel').val();
+        const labelElem = label ? getLabelString(label) : '';
+
         data['text'] = $form.find('input#REX_LINK_href_NAME').val();
         data['href'] = $form.find('input#REX_LINK_href').val();
         data['type'] = 'intern';
+        data['label'] = label;
+
 
         var btnGroup = TButtonGroup();
-        var textItem = $('<span>').addClass('txt').text(data.text);
+        var textItem = $('<span>').addClass('txt').html(data.text + labelElem);
         var div = $('<div>').append("&nbsp;").append(textItem).append(btnGroup);
         var $li = $("<li>").data(data);
         $li.addClass('list-group-item').append(div);

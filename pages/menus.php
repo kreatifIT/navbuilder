@@ -158,7 +158,7 @@ if ($func == '' || $func == 'delete') {
 							<div class="form-group">
 								<label for="name" class="col-sm-2 control-label">Name</label>
 								<div class="col-sm-10">
-									<input id="name" type="text" name="config[name]" value="' . $nav->name . '"/>
+									<input id="name" type="text" name="config[name]" value="' . $nav->name . '" class="form-control"/>
 								</div>
 							</div>
 						</div>
@@ -191,7 +191,7 @@ if ($func == '' || $func == 'delete') {
 									<div class="form-group">
 										<label for="groupLabel" class="col-sm-2 control-label">Name</label>
 										<div class="col-sm-10">
-											<input id="groupLabel" type="text" name="groupLabel"/>
+											<input id="groupLabel" type="text" name="groupLabel" class="form-control"/>
 										</div>
 									</div>
 								</div>
@@ -205,8 +205,15 @@ if ($func == '' || $func == 'delete') {
 							<div class="panel panel-primary">
 								<div class="panel-heading">Interner Link</div>
 								<div class="panel-body">
+                                    <div class="form-group">
+										<label for="internLabel" class="col-sm-2 control-label">Label</label>
+										<div class="col-sm-10">
+											<input id="internLabel" type="text" name="internLabel" class="form-control"/>
+										</div>
+									</div>
 									<div class="form-group">
 										<label for="internHref" class="col-sm-2 control-label">URL</label>
+										<input id="internRealName" type="hidden" name="internRealName"/>
 										<div class="col-sm-10">
 											' . $widget . '
 										</div>
@@ -235,13 +242,13 @@ if ($func == '' || $func == 'delete') {
                                     <div class="form-group">
                                         <label for="externLabel" class="col-sm-2 control-label">Label</label>
                                         <div class="col-sm-10">
-                                            <input id="externLabel" type="text" name="externLabel"/>
+                                            <input id="externLabel" type="text" name="externLabel" class="form-control"/>
                                         </div>
 									</div>
                                     <div class="form-group">
                                         <label for="externHref" class="col-sm-2 control-label">URL</label>
                                         <div class="col-sm-10">
-                                            <input id="externHref" type="text" name="externHref"/>
+                                            <input id="externHref" type="text" name="externHref" class="form-control"/>
                                         </div>
 									</div>
 								</div>
